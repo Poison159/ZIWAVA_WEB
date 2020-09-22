@@ -1,0 +1,132 @@
+﻿@model PagedList.IPagedList<ZkhiphavaWeb.Models.Indawo>
+@using PagedList.Mvc;
+@{
+    ViewBag.Title = "Index";
+}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<div style="padding-top:0px; background-color:transparent">
+
+    @using (Html.BeginForm("Index", "Indawoes", FormMethod.Get,new {style="margin-right: auto;margin-left: auto;font-weight: bold;padding-bottom:0px;"}))
+    {
+    <p class="yellow text-center" style="font-family:'Segoe Print'; padding-top:0px; margin:auto;">
+            Vibe @Html.DropDownList("type", "All") @Html.TextBox("name")
+        <button type="submit" class="btn btn-sm btn-primary">
+            <span class="glyphicon glyphicon-search "></span> Search
+        </button>
+    </p>
+    }
+
+</div>
+@if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+{
+    <p class="pull-right">@Html.ActionLink("Create New", "Create")</p>
+}
+
+<br />
+<br />
+@foreach (var item in Model.OrderBy(x => x.name))
+{
+    var price = "";
+    if (item.entranceFee == 0){
+        price = "FREE";
+    }
+    else {
+        price = "R" + item.entranceFee.ToString();
+    }
+    
+    var color = "";
+    if (item.openOrClosedInfo.ToLower() == "open")
+    {
+        color = "green";
+    }
+    else if (item.openOrClosedInfo.ToLower() == "closed") {
+        color = "red";
+    }
+    <div class="col-md-4 white">
+        <div class="card" style="width:320px;height:300px;">
+            <img style="width:300px;height:150px" class="card-img-top" src=@item.images.ElementAt(0).imgPath alt="Card image">
+            <div class="card-body">
+                <h4 id="name" style="font-family:'Segoe Print'" class="card-title yellow">
+                    @item.name
+                </h4>
+                <div class="row">
+                    <div class="col-md-4">
+                        <p id="@item.id" class="distance yellow"></p>
+                    </div>
+                    <div class="col-md-4">
+                        <p style="color:@color">@item.openOrClosedInfo</p>
+                    </div>
+                    <div class="col-md-4">
+                        <p class="yellow">@price</p>
+                    </div>
+                </div>
+
+
+                <div class="card-text">
+                    @for (int i = 0; i < item.rating; i++)
+                    {<span class="fa fa-star yellow"></span>}
+                    <a href="@Url.Action("Details", "Indawoes",new {id = item.id})" class="btn pull-right btn-sm btn-primary">
+                        Details
+                        <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+                    </a>
+                    <a class="pull-right btn btn-primary btn-sm" onclick="getDirections('@item.address')">
+                        Maps <span class="glyphicon glyphicon-map-marker"></span>
+                    </a>
+                    <a class="pull-right btn btn-primary btn-sm" href="@Url.Content(item.instaHandle)">
+                        Instagram <span class="glyphicon glyphicon-picture"></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+@Html.PagedListPager(Model, page => Url.Action("Index", new { page }))
+@if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+{
+    <h4 class="yellow pull-right">
+        On @ViewBag.Stats.date.DayOfWeek @ViewBag.Stats.date.Day
+        there were @ViewBag.Stats.counter clicks.
+    </h4>
+    <table style="padding-top:0px;" class="table-condensed table-bordered text-center">
+        <tr class="yellow">
+            <th>chilled</th>
+            <th>club</th>
+            <th>pub</th>
+            <th>outdor</th>
+        </tr>
+        <tr class="yellow">
+            <td>@ViewBag.Stats.chilledCounter</td>
+            <td>@ViewBag.Stats.clubCounter</td>
+            <td>@ViewBag.Stats.pubCounter</td>
+            <td>@ViewBag.Stats.outdoorCounter</td>
+        </tr>
+    </table>
+    <p class="yellow">locations = @Model.Count()</p>
+}
+<script src="~/Scripts/jquery-1.10.2.js"></script>
+<script>
+$(document).ready(
+    $(".distance").map( function () {
+            jQuery.support.cors = true;
+            var id = $(this).attr('id');
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    $.ajax({
+                        url: "https://zkhiphava.co.za/api/GetDistance?lat1="
+                            + position.coords.latitude.toString() + '&lon1=' + position.coords.longitude.toString()
+                            + '&indawoId=' + id.toString(),
+                        type: "GET",
+                        error: function (request, status, error) {
+                            console.error(request.responseText);
+                        },
+                        success: function (data) {
+                            document.getElementById(id).innerHTML = data + 'KM';
+                        }
+                    });
+                });
+            } else {
+                x.innerHTML = "Geolocation is not supported by this browser.";
+            }
+    })
+);
+</script>

@@ -1,0 +1,54 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - Real Ninjas</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+
+</head>
+<body>
+    <div style="background-color:transparent" class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                @Html.ActionLink("Ziwava", "Index", "Home", new { @class = "yellow" }, new { @class = "navbar-brand yellow" })
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li>@Html.ActionLink("Locations", "Index", "Indawoes", new { area = "" }, null)</li>
+                    <li>@Html.ActionLink("Events", "Index", "Events", new { area = "" }, null)</li>
+                    @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                    {
+                        <li>@Html.ActionLink("Artists", "Index", "Artists", new { area = "" }, null)</li>
+                        <li>@Html.ActionLink("ArtistEvents", "Index", "ArtistEvents", new { area = "" }, null)</li>
+                        <li>@Html.ActionLink("App Requests", "Index", "Requests", new { area = "" }, null)</li>
+                    }
+                    @if (User.Identity.IsAuthenticated && !User.IsInRole("Admin"))
+                    {
+                        <li>@Html.ActionLink("App Data", "Index", "AppData", new { email = User.Identity.Name }, null)</li>
+                    }
+                    </ul>
+                @Html.Partial("_LoginPartial")
+            </div>
+        </div>
+    </div>
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+        <footer>
+            <p>&copy; @DateTime.Now.Year - zkhiphava@gmail.com</p>
+        </footer>
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    <script src="~/Scripts/Ziwava.js"></script>
+    @RenderSection("scripts", required: false)
+</body>
+</html>

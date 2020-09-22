@@ -1,0 +1,57 @@
+﻿@model IEnumerable<ZkhiphavaWeb.Models.OperatingHours>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+<p style="float:right">
+    @Html.ActionLink("Create New", "Create")
+</p>
+<br />
+<div class="row">
+
+    @foreach (var item in ViewBag.indawoNames)
+    {
+    <div class="col-md-4">
+        <dl class="accordion">
+            <dt>
+                <a style="font-family:'Segoe Print'; font-size:large; padding-top:0px;">@item.Value</a>
+            </dt>
+
+            <dd>
+                @foreach (var opHour in ViewBag.sortedHours[item.Value])
+                {
+                    <li style="font-family:'Segoe Print'; font-size:large">
+                        @opHour.day  -> @opHour.openingHour.TimeOfDay till @opHour.closingHour.TimeOfDay  @if (opHour.occation != "")
+                        {@opHour.occation}
+                    </li>
+
+                    <div class="pull-right" style="font-family:'Segoe Print'">
+                        @Html.ActionLink("Edit", "Edit", new { id = opHour.id }) |
+                        @Html.ActionLink("Details", "Details", new { id = opHour.id }) |
+                        @Html.ActionLink("Delete", "Delete", new { id = opHour.id })
+                    </div>
+                }
+            </dd>
+
+        </dl>
+    </div>
+    }
+
+</div>
+<script src="~/Scripts/jquery-1.10.2.js"></script>
+<script>
+    jQuery(document).ready(function ($) {
+        var panels = $('.accordion > dd').hide();
+        $('.accordion > dt > a').click(function () {
+            var $this = $(this);
+            panels.slideUp();
+            $this.parent().next().slideDown();
+            return false;
+        });
+    });
+</script>
+
+

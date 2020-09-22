@@ -1,0 +1,131 @@
+﻿@model PagedList.IPagedList<ZkhiphavaWeb.Models.Image>
+@using PagedList.Mvc;
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+<div style="padding-top:0px; background-color:transparent">
+
+    @using (Html.BeginForm("Index", "Images", FormMethod.Get))
+    {
+    <p style="font-family:'Segoe Print'; float:left; padding-top:0px;">
+        Indawo: @Html.DropDownList("indawoId", "All")   event: @Html.DropDownList("eventName", "All")
+        <input type="submit" value="search" />
+    </p>
+    }
+
+</div>
+
+<p class="pull-right">
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayName("id")
+        </th>
+        <th>
+            @Html.DisplayName("location")
+        </th>
+        <th>
+            @Html.DisplayName("Image")
+        </th>
+        <th></th>
+    </tr>
+
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @item.eventName
+            </td>
+            <td>
+                @ViewBag.indawoNames[item.indawoId]
+            </td>
+            <td>
+                <img src="@Url.Content(item.imgPath)" style="height: 100px; width:250px; border-radius:10px;" />
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { id = item.id }) |
+                @Html.ActionLink("Details", "Details", new { id = item.id }) |
+                @Html.ActionLink("Delete", "Delete", new { id = item.id })
+            </td>
+        </tr>
+    }
+    Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+
+    @Html.PagedListPager(Model, page => Url.Action("Index", new { page }))
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

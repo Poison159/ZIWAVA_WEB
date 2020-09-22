@@ -1,0 +1,152 @@
+﻿@model ZkhiphavaWeb.Models.UserData
+
+@{
+    ViewBag.Title = "Index";
+}
+
+    <head>
+        <script src="~/Scripts/jquery-1.10.2.js"></script>
+       
+    </head>
+
+
+    <div>
+        <ul class="nav nav-tabs">
+            <li class="active"><a data-toggle="tab" href="#home">Liked locations</a></li>
+            <li><a data-toggle="tab" href="#menu1">Interested Events</a></li>
+        </ul>
+
+        <div class="tab-content">
+            <div id="home" class="tab-pane fade in active">
+                <div class="row">
+
+                    @foreach (var item in Model.locations)
+                    {
+                        var price = "";
+                        if (item.entranceFee == 0)
+                        {
+                            price = "FREE";
+                        }
+                        else
+                        {
+                            price = "R" + item.entranceFee.ToString();
+                        }
+
+                        var color = "";
+                        if (item.openOrClosedInfo.ToLower() == "open")
+                        {
+                            color = "green";
+                        }
+                        else if (item.openOrClosedInfo.ToLower() == "closed")
+                        {
+                            color = "red";
+                        }
+                        <div class="col-md-4">
+                            <div class="card" style="width:320px;height:300px;color:transparent">
+                                <img style="width:300px;height:150px" class="card-img-top" src=@item.images.ElementAt(0).imgPath alt="Card image">
+                                <div class="card-body">
+                                    <h4 id="name" style="font-family:'Segoe Print'" class="card-title yellow">
+                                        @item.name
+                                    </h4>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <p id="@item.id" class="distance yellow"></p>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <p style="color:@color">@item.openOrClosedInfo</p>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <p class="yellow">@price</p>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="card-text">
+                                        @for (int i = 0; i < item.rating; i++)
+                                        {<span class="fa fa-star yellow"></span>}
+                                        <a href="@Url.Action("Details", "Indawoes",new {id = item.id})" class="btn pull-right btn-sm btn-primary">
+                                            Details
+                                            <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+                                        </a>
+                                        <a class="pull-right btn btn-primary btn-sm" onclick="getDirections('@item.address')">
+                                            Maps <span class="glyphicon glyphicon-map-marker"></span>
+                                        </a>
+                                        <a class="pull-right btn btn-primary btn-sm" href="@Url.Content(item.instaHandle)">
+                                            Instagram <span class="glyphicon glyphicon-picture"></span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+            <div id="menu1" class="tab-pane fade">
+                <div id="two" class="row">
+                    @foreach (var item in Model.events)
+                    {
+                        <div class="col-md-4 white">
+                            <div class="card" style="width:320px;height:300px;">
+                                <img style="width:300px;height:150px" class="card-img-top" src=@item.images.ElementAt(0).imgPath alt="Card image">
+                                <div class="card-body">
+                                    <h4 id="name" style="font-family:'Segoe Print'" class="card-title yellow">
+                                        @item.title
+                                    </h4>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <p id="@item.id" class="distance yellow"></p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p class="yellow">@item.price</p>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="card-text">
+                                        <a href="@Url.Action("Details", "Events",new {id = item.id})" class="btn pull-right btn-sm btn-primary">
+                                            Details
+                                            <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+                                        </a>
+                                        <a class="pull-right btn btn-primary btn-sm" onclick="getDirections('@item.address')">
+                                            Maps <span class="glyphicon glyphicon-map-marker"></span>
+                                        </a>
+                                        <a class="pull-right btn btn-primary btn-sm" href="@Url.Content(item.url)">
+                                            Website <span class="glyphicon glyphicon-picture"></span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    $(document).ready(
+        $(".distance").map(function () {
+            jQuery.support.cors = true;
+            var id = $(this).attr('id');
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    $.ajax({
+                        url: "https://zkhiphava.co.za/api/GetDistance?lat1="
+                            + position.coords.latitude.toString() + '&lon1=' + position.coords.longitude.toString()
+                            + '&indawoId=' + id.toString(),
+                        type: "GET",
+                        error: function (request, status, error) {
+                            console.error(request.responseText);
+                        },
+                        success: function (data) {
+                            document.getElementById(id).innerHTML = data + 'KM';
+                        }
+                    });
+                });
+            } else {
+                x.innerHTML = "Geolocation is not supported by this browser.";
+            }
+        })
+    );
+</script>
+<script src="@Url.Content("~/Scripts/jquery-ui-1.8.24.min.js")" type="text/javascript"></script>
