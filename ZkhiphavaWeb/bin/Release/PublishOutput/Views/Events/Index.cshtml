@@ -79,7 +79,7 @@
                     <h3 style="font-family:'Segoe Print'" class="yellow">@item.title.ToUpper()</h3>
                     <img style="width:300px; height: 200px;" src=@item.imgPath class="card-img-top" alt="...">
                     <div class="card-body">
-                        <a href="@Url.Content(Model.Where(x => x.indawoId == 9).ElementAt(0).url)" class="btn btn-primary"> Destails</a>
+                        @Html.ActionLink("Details","Details",new { id = item.id},new { @class = "btn btn-primary"})
                         <a class="btn btn-primary" onclick="getDirections('@Model.Where(x => x.indawoId == 9).ElementAt(0).address')">Directions</a>
                         <a class="btn btn-primary"> Tickets</a>
                     </div>

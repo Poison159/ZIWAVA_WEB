@@ -43,8 +43,23 @@ namespace ZkhiphavaWeb.Models
             }
         }
 
-
-        
+        internal static List<Indawo> checkParams(string name, string type, string province,IEnumerable<Indawo> indawoes)
+        {
+            List<Indawo> ret = new List<Indawo>();
+            if (!string.IsNullOrEmpty(name))
+                ret = indawoes.Where(x => x.name.Trim().ToLower().Contains(name.Trim().ToLower())).ToList();
+            if (!string.IsNullOrEmpty(province))
+            {
+                ret = indawoes.Where(x => x.city.ToString().Equals(province)).ToList();
+            }
+            if (!string.IsNullOrEmpty(type))
+            {
+                ret = indawoes.Where(x => x.type.ToString().Equals(type)).ToList();
+            }
+            if (string.IsNullOrEmpty(type) && string.IsNullOrEmpty(name) && string.IsNullOrEmpty(province))
+                return indawoes.ToList();
+            return ret;
+        }
 
         public static Coordinates getLatLon() {
             double lat = 0;
@@ -201,11 +216,27 @@ namespace ZkhiphavaWeb.Models
                 appStat.outdoorCounter++;
         }
 
+        public static void fixUrl(List<Image> images,ApplicationDbContext db) {
+            var prodUrl = "https://zkhiphava.co.za/Content/imgs/";
+            foreach (var img in images){
+                if (img.imgPath.Contains(".conveyor.cloud")) {
+                    string randStr = getRandStr(img.imgPath);
+                    img.imgPath = prodUrl + randStr;
+                    db.SaveChanges();
+                }
+            }
+        }
+
+        private static string getRandStr(string imgPath)
+        {
+            var splt = imgPath.Split('/');
+            return splt.Last();
+        }
 
         internal static Dictionary<int,string> getIndawoNames(List<Indawo> list)
         {
             var strList = new Dictionary<int,string>();
-            foreach (var item in list.OrderBy(x => x.name))
+            foreach (var item in list)
             {
                 strList.Add(item.id,item.name);
             }
@@ -324,7 +355,7 @@ namespace ZkhiphavaWeb.Models
                 Helper.prepareLocation(ndawo, db);
             }
             
-            return new { liked = liked.Distinct().ToList(), interested = interested.Distinct().ToList() };
+            return new { liked = liked.Distinct().Reverse().ToList(), interested = interested.Distinct().Reverse().ToList() };
         }
 
         private static Indawo addDistance(Indawo indawo,double lat, double lon)

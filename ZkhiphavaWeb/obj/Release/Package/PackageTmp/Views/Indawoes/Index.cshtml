@@ -9,7 +9,7 @@
     @using (Html.BeginForm("Index", "Indawoes", FormMethod.Get,new {style="margin-right: auto;margin-left: auto;font-weight: bold;padding-bottom:0px;"}))
     {
     <p class="yellow text-center" style="font-family:'Segoe Print'; padding-top:0px; margin:auto;">
-            Vibe @Html.DropDownList("type", "All") @Html.TextBox("name")
+        province @Html.DropDownList("province", "All") Vibe @Html.DropDownList("type", "All") @Html.TextBox("name")
         <button type="submit" class="btn btn-sm btn-primary">
             <span class="glyphicon glyphicon-search "></span> Search
         </button>
@@ -80,7 +80,8 @@
         </div>
     </div>
 }
-@Html.PagedListPager(Model, page => Url.Action("Index", new { page }))
+@Html.PagedListPager(Model, page => Url.Action("Index", new { page, type=ViewBag.selectedType, province = ViewBag.selectedProvince}))
+
 @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
 {
     <h4 class="yellow pull-right">

@@ -7,7 +7,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
   <PropertyGroup>
     <TimeStampOfAssociatedLegacyPublishXmlFile />
     <_NewBackgroundProfile>True</_NewBackgroundProfile>
-    <_PublishTargetUrl>\\LENOVO-T510\Users\Hadebe2\Downloads\Projects\ZkhiphavaAdmin\ZkhiphavaWeb\bin\Release\PublishOutput</_PublishTargetUrl>
+    <_PublishTargetUrl>C:\Users\Zulu\Documents\MVCProjects\ZkhiphavaAdmin\ZkhiphavaWeb\bin\Release\PublishOutput</_PublishTargetUrl>
   </PropertyGroup>
   <ItemGroup>
     <File Include="ApplicationInsights.config">
@@ -233,10 +233,10 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>01/28/2020 18:46:33</publishTime>
     </File>
     <File Include="bin/ZkhiphavaWeb.dll">
-      <publishTime>08/29/2020 13:00:23</publishTime>
+      <publishTime>09/30/2020 20:08:39</publishTime>
     </File>
     <File Include="bin/ZkhiphavaWeb.pdb">
-      <publishTime>08/29/2020 13:00:23</publishTime>
+      <publishTime>09/30/2020 20:08:39</publishTime>
     </File>
     <File Include="Content/bootstrap.css">
       <publishTime>01/28/2020 18:46:15</publishTime>
@@ -388,17 +388,20 @@ by editing this MSBuild file. In order to learn more about this please visit htt
     <File Include="Views/Events/Create.cshtml">
       <publishTime>01/28/2020 18:46:15</publishTime>
     </File>
+    <File Include="Views/Events/CreateImg.cshtml">
+      <publishTime>09/09/2020 22:03:38</publishTime>
+    </File>
     <File Include="Views/Events/Delete.cshtml">
       <publishTime>01/28/2020 18:46:15</publishTime>
     </File>
     <File Include="Views/Events/Details.cshtml">
-      <publishTime>03/20/2020 03:17:44</publishTime>
+      <publishTime>09/09/2020 22:44:50</publishTime>
     </File>
     <File Include="Views/Events/Edit.cshtml">
       <publishTime>01/28/2020 18:46:15</publishTime>
     </File>
     <File Include="Views/Events/Index.cshtml">
-      <publishTime>04/09/2020 20:27:13</publishTime>
+      <publishTime>09/22/2020 17:01:56</publishTime>
     </File>
     <File Include="Views/Home/About.cshtml">
       <publishTime>01/28/2020 18:46:15</publishTime>
@@ -425,7 +428,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>01/28/2020 18:46:15</publishTime>
     </File>
     <File Include="Views/Indawoes/Create.cshtml">
-      <publishTime>07/02/2020 16:32:11</publishTime>
+      <publishTime>09/22/2020 13:04:57</publishTime>
     </File>
     <File Include="Views/Indawoes/CreateEvent.cshtml">
       <publishTime>02/19/2020 20:02:02</publishTime>
@@ -434,7 +437,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>02/19/2020 20:01:22</publishTime>
     </File>
     <File Include="Views/Indawoes/CreateOp.cshtml">
-      <publishTime>02/19/2020 20:00:53</publishTime>
+      <publishTime>09/24/2020 21:55:42</publishTime>
     </File>
     <File Include="Views/Indawoes/CreateSp.cshtml">
       <publishTime>02/19/2020 20:12:27</publishTime>
@@ -443,13 +446,19 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>02/19/2020 20:00:13</publishTime>
     </File>
     <File Include="Views/Indawoes/Details.cshtml">
-      <publishTime>07/02/2020 13:50:04</publishTime>
+      <publishTime>09/24/2020 18:42:50</publishTime>
     </File>
     <File Include="Views/Indawoes/Edit.cshtml">
-      <publishTime>07/02/2020 16:54:40</publishTime>
+      <publishTime>09/22/2020 14:15:01</publishTime>
+    </File>
+    <File Include="Views/Indawoes/EditImg.cshtml">
+      <publishTime>09/27/2020 23:06:20</publishTime>
+    </File>
+    <File Include="Views/Indawoes/EditOp.cshtml">
+      <publishTime>09/22/2020 16:48:30</publishTime>
     </File>
     <File Include="Views/Indawoes/Index.cshtml">
-      <publishTime>07/06/2020 12:49:26</publishTime>
+      <publishTime>09/30/2020 18:27:03</publishTime>
     </File>
     <File Include="Views/Manage/AddPhoneNumber.cshtml">
       <publishTime>01/28/2020 18:46:15</publishTime>
@@ -533,7 +542,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>01/28/2020 18:46:15</publishTime>
     </File>
     <File Include="Web.config">
-      <publishTime>08/29/2020 13:00:25</publishTime>
+      <publishTime>09/25/2020 19:23:01</publishTime>
     </File>
   </ItemGroup>
 </Project>

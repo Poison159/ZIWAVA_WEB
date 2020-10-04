@@ -59,6 +59,10 @@ namespace ZkhiphavaWeb.Controllers
             if (string.IsNullOrEmpty(vibe)){
                 return null;
             }
+            foreach (var item in db.Indawoes.Where(x => x.city == "Durban")){
+                item.city = "eThekwini";
+                db.SaveChanges();
+            }
             locations = db.Indawoes.ToList().Where(x => x.city.Trim().ToLower() == city.Trim().ToLower() 
             && x.type.Trim().ToLower() == vibe.Trim().ToLower()).OrderBy(x => rnd.Next()).ToList();
 
@@ -66,17 +70,23 @@ namespace ZkhiphavaWeb.Controllers
             foreach (var ndawo in listOfIndawoes){
                 Helper.prepareLocation(ndawo, db);
             }
-            return listOfIndawoes;
+            return listOfIndawoes.Where(x => x.id != 9).ToList();
         }
 
         [Route("api/GetDistance")]
         [HttpGet]
         public double getDistance(double lat1, double lon1, int indawoId)
         {
-            var indawo = db.Indawoes.Find(indawoId);
-            return Math.Round(Helper.distanceToo(lat1, lon1, 
-                Convert.ToDouble(indawo.lat, CultureInfo.InvariantCulture),
-                Convert.ToDouble(indawo.lon, CultureInfo.InvariantCulture), 'K'));
+           double ret = 0;
+            try{
+                var indawo = db.Indawoes.Find(indawoId);
+                ret = Math.Round(Helper.distanceToo(lat1, lon1,
+                    Convert.ToDouble(indawo.lat, CultureInfo.InvariantCulture),
+                    Convert.ToDouble(indawo.lon, CultureInfo.InvariantCulture), 'K'));
+            }
+            catch (Exception){
+            }
+            return ret;
         }
 
         [Route("api/IncIndawoStats")]

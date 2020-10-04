@@ -87,9 +87,10 @@ namespace ZkhiphavaWeb.Controllers.mvc
                 try
                 {
                     Helper.downloadImage(path, image.imgPath);
-                    image.imgPath = testPath + randString + ".png";
+                    image.imgPath = prodPath + randString + ".png";
                     db.Images.Add(image);
                     db.SaveChanges();
+                    RedirectToAction("Details", "Indawoes", new { id = image.indawoId });
                 }
                 catch (Exception)
                 {
@@ -136,11 +137,12 @@ namespace ZkhiphavaWeb.Controllers.mvc
                     image.imgPath = testPath + randString + ".png";
                     db.Entry(image).State = EntityState.Modified;
                     db.SaveChanges();
+                    return RedirectToAction("Details", "Indawoes", new { id = image.indawoId });
                 }
                 catch (Exception){
                     return View(image);
                 }
-                return RedirectToAction("Details","Indawoes",new {id = image.indawoId });
+                
             }
             return View(image);
         }
