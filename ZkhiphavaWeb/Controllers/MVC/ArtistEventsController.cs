@@ -10,7 +10,8 @@ using ZkhiphavaWeb.Models;
 
 namespace ZkhiphavaWeb.Controllers.MVC
 {
-    
+    [HandleError]
+    [RequireHttps]
     public class ArtistEventsController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();

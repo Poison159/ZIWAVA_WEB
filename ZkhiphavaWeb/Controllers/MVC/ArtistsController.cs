@@ -11,7 +11,8 @@ using ZkhiphavaWeb.Models;
 
 namespace ZkhiphavaWeb.Controllers.MVC
 {
-    
+    [HandleError]
+    [RequireHttps]
     public class ArtistsController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();

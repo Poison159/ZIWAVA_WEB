@@ -11,6 +11,8 @@ using ZkhiphavaWeb.Models;
 
 namespace ZkhiphavaWeb.Controllers.mvc
 {
+    [HandleError]
+    [RequireHttps]
     public class ImagesController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
@@ -76,8 +78,6 @@ namespace ZkhiphavaWeb.Controllers.mvc
         [ValidateAntiForgeryToken]
         public ActionResult Create([Bind(Include = "id,indawoId,imgPath,eventName")] Image image)
         {
-            var prodPath = "https://zkhiphava.co.za/Content/imgs/";
-            var testPath = "https://zkhiphavaweb.conveyor.cloud/Content/imgs/";
             ViewBag.indawoId = new SelectList(db.Indawoes, "id", "name", image.indawoId);
             if (ModelState.IsValid)
             {
@@ -87,10 +87,10 @@ namespace ZkhiphavaWeb.Controllers.mvc
                 try
                 {
                     Helper.downloadImage(path, image.imgPath);
-                    image.imgPath = prodPath + randString + ".png";
+                    image.imgPath = randString + ".png";
                     db.Images.Add(image);
                     db.SaveChanges();
-                    RedirectToAction("Details", "Indawoes", new { id = image.indawoId });
+                    RedirectToAction("Index", "Events");
                 }
                 catch (Exception)
                 {
@@ -127,15 +127,15 @@ namespace ZkhiphavaWeb.Controllers.mvc
         {
             if (ModelState.IsValid)
             {
-                var prodPath = "https://zkhiphava.co.za/Content/imgs/";
-                var testPath = "https://zkhiphavaweb.conveyor.cloud/Content/imgs/";
+               
                 var randString = Helper.RandomString(10);
                 string targetPath = Server.MapPath("~");
                 var path = targetPath + @"Content\imgs\" + randString + ".png";
                 try{
                     Helper.downloadImage(path, image.imgPath);
-                    image.imgPath = testPath + randString + ".png";
+                    image.imgPath = randString + ".png";
                     db.Entry(image).State = EntityState.Modified;
+                    Helper.deleteOldImage(new List<Image> { image });
                     db.SaveChanges();
                     return RedirectToAction("Details", "Indawoes", new { id = image.indawoId });
                 }

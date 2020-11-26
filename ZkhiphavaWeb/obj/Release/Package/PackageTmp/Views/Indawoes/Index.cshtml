@@ -9,7 +9,7 @@
     @using (Html.BeginForm("Index", "Indawoes", FormMethod.Get,new {style="margin-right: auto;margin-left: auto;font-weight: bold;padding-bottom:0px;"}))
     {
     <p class="yellow text-center" style="font-family:'Segoe Print'; padding-top:0px; margin:auto;">
-        province @Html.DropDownList("province", "All") Vibe @Html.DropDownList("type", "All") @Html.TextBox("name")
+        Province @Html.DropDownList("province", "All") Vibe @Html.DropDownList("type", "All") @Html.TextBox("name")
         <button type="submit" class="btn btn-sm btn-primary">
             <span class="glyphicon glyphicon-search "></span> Search
         </button>
@@ -24,7 +24,7 @@
 
 <br />
 <br />
-@foreach (var item in Model.OrderBy(x => x.name))
+@foreach (var item in Model)
 {
     var price = "";
     if (item.entranceFee == 0){
@@ -43,7 +43,7 @@
         color = "red";
     }
     <div class="col-md-4 white">
-        <div class="card" style="width:320px;height:300px;">
+        <div class="card border-primary" style="width:320px;height:300px;">
             <img style="width:300px;height:150px" class="card-img-top" src=@item.images.ElementAt(0).imgPath alt="Card image">
             <div class="card-body">
                 <h4 id="name" style="font-family:'Segoe Print'" class="card-title yellow">
@@ -105,29 +105,4 @@
     <p class="yellow">locations = @Model.Count()</p>
 }
 <script src="~/Scripts/jquery-1.10.2.js"></script>
-<script>
-$(document).ready(
-    $(".distance").map( function () {
-            jQuery.support.cors = true;
-            var id = $(this).attr('id');
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function (position) {
-                    $.ajax({
-                        url: "https://zkhiphava.co.za/api/GetDistance?lat1="
-                            + position.coords.latitude.toString() + '&lon1=' + position.coords.longitude.toString()
-                            + '&indawoId=' + id.toString(),
-                        type: "GET",
-                        error: function (request, status, error) {
-                            console.error(request.responseText);
-                        },
-                        success: function (data) {
-                            document.getElementById(id).innerHTML = data + 'KM';
-                        }
-                    });
-                });
-            } else {
-                x.innerHTML = "Geolocation is not supported by this browser.";
-            }
-    })
-);
-</script>
+<script src="~/Scripts/Ziwava.js"></script>

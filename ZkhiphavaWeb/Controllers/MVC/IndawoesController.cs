@@ -15,25 +15,26 @@ using ZkhiphavaWeb.Models;
 namespace ZkhiphavaWeb.Controllers.mvc
 {
     [HandleError]
+    [RequireHttps]
     public class IndawoesController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
-
-        public List<string> vibes = new List<string>() { "Chilled", "Club", "Outdoor", "Pub/Bar" };
-        public List<string> cities = new List<string> { "Gauteng", "Western Cape", "KwaZulu-Natal"};
-        public List<string> daysOfweek = new List<string>() { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
+        
+        public List<string> vibes       = new List<string>() { "Chilled", "Club", "Outdoor", "Pub/Bar" };
+        public List<string> cities      = new List<string> { "Gauteng", "Western Cape", "KwaZulu-Natal"};
+        public List<string> daysOfweek  = new List<string>() { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
         // GET: Indawoes
         public ActionResult Index(int? page, string name,string type, string province)
         {
-            var vibesList = new List<string>();
-            var dbIndawoes = from cr in db.Indawoes.Where(x => x.id != 9).ToList() select cr;
-            var rnd = new Random();
-            var vibequery = from gmq in db.Indawoes orderby gmq.type select gmq.type;
-
-            var indawoes = Helper.checkParams(name,type,province, dbIndawoes);
-            foreach (var location in indawoes.ToList())
-                Helper.prepareLocation(location, db);
+            var vibesList   = new List<string>();
+            var dbIndawoes  = from cr in db.Indawoes.Where(x => x.id != 9).ToList() select cr;
+            var rnd         = new Random();
+            var vibequery   = from gmq in db.Indawoes orderby gmq.type select gmq.type;
+            var indawoes    = Helper.checkParams(name,type,province, dbIndawoes);
+            
+                
             vibesList.AddRange(vibequery.Distinct());
+            //Helper.getAllImages(db.Images.ToList().Where(x => x.indawoId == 9).ToList(), db);
             ViewBag.selectedType = type;
             ViewBag.selectedProvince = province;
             ViewBag.type = new SelectList(vibesList);
@@ -45,9 +46,10 @@ namespace ZkhiphavaWeb.Controllers.mvc
             if (!string.IsNullOrEmpty(type) || !string.IsNullOrEmpty(province) || page > 1)
                 indawoes = indawoes.ToList();
             else
-                indawoes = indawoes.ToList().OrderBy(x => rnd.Next()).ToList(); 
-                IPagedList<Indawo> originalPagedList = indawoes.ToPagedList(pageNumber, pageSize);
-            return View(originalPagedList);
+                indawoes = indawoes.ToList().OrderBy(x => rnd.Next()).ToList();
+            foreach (var indawo in indawoes)
+                Helper.prepareLocation(indawo, db);
+            return View(indawoes.ToPagedList(pageNumber, pageSize));
         }
 
         // GET: Indawoes/Details/5
@@ -80,8 +82,6 @@ namespace ZkhiphavaWeb.Controllers.mvc
         {
             
                 image.indawoId = (int)indawoId;
-                var prodPath = "https://zkhiphava.co.za/Content/imgs/";
-                var testPath = "https://zkhiphavaweb.conveyor.cloud/Content/imgs/";
                 ViewBag.indawoId = new SelectList(db.Indawoes, "id", "name", image.indawoId);
                 if (ModelState.IsValid)
                 {
@@ -91,7 +91,7 @@ namespace ZkhiphavaWeb.Controllers.mvc
                     try
                     {
                         Helper.downloadImage(path, image.imgPath);
-                        image.imgPath = prodPath + randString + ".png";
+                        image.imgPath = randString + ".png";
                         db.Images.Add(image);
                         db.SaveChanges();
                         RedirectToAction("Details", "Indawoes", new { id = image.indawoId });
@@ -127,16 +127,15 @@ namespace ZkhiphavaWeb.Controllers.mvc
             image.indawoId = (int)indawoId;
             if (ModelState.IsValid)
             {
-                var prodPath = "https://zkhiphava.co.za/Content/imgs/";
-                var testPath = "https://zkhiphavaweb.conveyor.cloud/Content/imgs/";
                 var randString = Helper.RandomString(10);
                 string targetPath = Server.MapPath("~");
                 var path = targetPath + @"Content\imgs\" + randString + ".png";
                 try
                 {
                     Helper.downloadImage(path, image.imgPath);
-                    image.imgPath = prodPath + randString + ".png";
+                    image.imgPath = randString + ".png";
                     db.Entry(image).State = EntityState.Modified;
+                    Helper.deleteOldImage(new List<Image> { image });
                     db.SaveChanges();
                 }
                 catch (Exception)
@@ -275,8 +274,7 @@ namespace ZkhiphavaWeb.Controllers.mvc
             if (ModelState.IsValid)
             {
                 if (db.Indawoes.ToList().Where(x => x.name == indawo.name && x.city == indawo.city).Count() == 0) {
-                    var path = "https://zkhiphava.co.za/Content/imgs/default.png";
-                    var testPath = "https://zkhiphavaweb.conveyor.cloud/Content/imgs/default.png";
+                    var path = "default.png";
 
                     for (int i = 0; i <= 2; i++)
                         indawo.images.Add(new Image() { indawoId = indawo.id, imgPath = path });
@@ -387,6 +385,7 @@ namespace ZkhiphavaWeb.Controllers.mvc
             foreach (var item in db.Images.Where(x => x.indawoId == indawo.id)) { db.Images.Remove(item); }
             foreach (var item in db.OperatingHours.Where(x => x.indawoId == indawo.id)) { db.OperatingHours.Remove(item); }
             foreach (var item in db.SpecialInstructions.Where(x => x.indawoId == indawo.id)) { db.SpecialInstructions.Remove(item); }
+            Helper.deleteOldImage(db.Images.Where(x => x.indawoId == indawo.id).ToList());
             db.SaveChanges();
             return RedirectToAction("Index");
         }

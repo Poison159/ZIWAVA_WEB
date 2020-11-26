@@ -87,9 +87,9 @@ namespace ZkhiphavaWeb
             //   consumerKey: "",
             //   consumerSecret: "");
 
-            //app.UseFacebookAuthentication(
-            //   appId: "",
-            //   appSecret: "");
+            app.UseFacebookAuthentication(
+               appId: "2496055210672980",
+               appSecret: "a932a6d353ff4f30d2661c2b7478a49e");
 
             //app.UseGoogleAuthentication(new GoogleOAuth2AuthenticationOptions()
             //{

@@ -59,10 +59,6 @@ namespace ZkhiphavaWeb.Controllers
             if (string.IsNullOrEmpty(vibe)){
                 return null;
             }
-            foreach (var item in db.Indawoes.Where(x => x.city == "Durban")){
-                item.city = "eThekwini";
-                db.SaveChanges();
-            }
             locations = db.Indawoes.ToList().Where(x => x.city.Trim().ToLower() == city.Trim().ToLower() 
             && x.type.Trim().ToLower() == vibe.Trim().ToLower()).OrderBy(x => rnd.Next()).ToList();
 
@@ -71,6 +67,26 @@ namespace ZkhiphavaWeb.Controllers
                 Helper.prepareLocation(ndawo, db);
             }
             return listOfIndawoes.Where(x => x.id != 9).ToList();
+        }
+            
+        [Route("api/GetByName")]
+        [HttpGet]
+        public object getByName(string name,string lat, string lon) {
+           var locations    = db.Indawoes.ToList().Where(x => x.name.Trim().ToLower().Contains(name.Trim().ToLower())).ToList();
+            foreach (var loc in locations)
+            {
+                loc.distance = Math.Round(Helper.distanceToo(Convert.ToDouble(lat, CultureInfo.InvariantCulture),
+                    Convert.ToDouble(lon, CultureInfo.InvariantCulture),
+                    Convert.ToDouble(loc.lat, CultureInfo.InvariantCulture),
+                    Convert.ToDouble(loc.lon, CultureInfo.InvariantCulture), 'K'));
+                Helper.prepareLocation(loc, db);
+            }
+                
+            var events   = db.Events.ToList().Where(x => x.title.Trim().ToLower().Contains(name.Trim().ToLower())).ToList();
+            foreach (var evnt in events){
+                Helper.prepareEvent(lat, lon, evnt, db);
+            }
+            return new { liked = locations.OrderByDescending(x => x.distance), interested = events.OrderByDescending(x => x.distance) };
         }
 
         [Route("api/GetDistance")]
@@ -280,7 +296,7 @@ namespace ZkhiphavaWeb.Controllers
             try
             {
                 var user = db.AppUsers.First(x => x.email == email);
-                return Helper.LiekdFromString(user.LikesLocations, user.interestedEvents, db.Indawoes.ToList(), db.Events.ToList(),db,lat,lon);
+                return Helper.LiekdFromString(user.LikesLocations, user.interestedEvents, db.Indawoes.ToList(), db.Events.ToList(), db, lat, lon);
             }
             catch (Exception)
             {
@@ -294,21 +310,10 @@ namespace ZkhiphavaWeb.Controllers
         
         public Event Event(int id,string lat, string lon)
         {
-            int outPut;
+            var evnt = db.Events.Find(id);
             try
             {
-                var evnt = db.Events.Find(id);
-                if (int.TryParse(lat[1].ToString(), out outPut) && int.TryParse(lon[0].ToString(), out outPut)) {
-                    var locationLat = Convert.ToDouble(evnt.lat, CultureInfo.InvariantCulture);
-                    var locationLon = Convert.ToDouble(evnt.lon, CultureInfo.InvariantCulture);
-                    var userLocationLat = Convert.ToDouble(lat, CultureInfo.InvariantCulture);
-                    var userLocationLong = Convert.ToDouble(lon, CultureInfo.InvariantCulture);
-                    evnt.distance = Math.Round(Helper.distanceToo(locationLat, locationLon, userLocationLat, userLocationLong, 'K'));
-                }
-                var eventArtistIds = db.ArtistEvents.ToList().Where(x => x.eventId == evnt.id);
-                evnt.artists = Helper.getArtists(eventArtistIds, db);
-                evnt.images = db.Images.Where(x => x.eventName.ToLower().Trim() == evnt.title.ToLower().Trim()).ToList();
-                evnt.date = Helper.treatDate(evnt.date);
+                Helper.prepareEvent(lat, lon, evnt, db);
                 return evnt;
             }
             catch {
@@ -328,11 +333,7 @@ namespace ZkhiphavaWeb.Controllers
                 {
                     if (int.TryParse(lat[1].ToString(), out outPut) && int.TryParse(lon[0].ToString(), out outPut))
                     {
-                        var userLocationLat = Convert.ToDouble(lat, CultureInfo.InvariantCulture);
-                        var userLocationLong = Convert.ToDouble(lon, CultureInfo.InvariantCulture);
-                        var locationLat = Convert.ToDouble(evnt.lat, CultureInfo.InvariantCulture);
-                        var locationLon = Convert.ToDouble(evnt.lon, CultureInfo.InvariantCulture);
-                        evnt.distance = Math.Round(Helper.distanceToo(locationLat, locationLon, userLocationLat, userLocationLong, 'K'));
+                        Helper.prepareEvent(lat, lon, evnt, db);
                     }
                 }
                 var randEvents = events.OrderBy(x => rnd.Next()).ToList();
@@ -350,15 +351,7 @@ namespace ZkhiphavaWeb.Controllers
         public IHttpActionResult GetIndawo(int id)
         {
             Indawo indawo = db.Indawoes.Find(id);
-            //Indawo indawo = LoadJson(@"C:\Users\sibongisenib\Documents\ImportantRecentProjects\listOfIndawoes.json").First(x => x.id == id);
-            var OpHours = db.OperatingHours.Where(x => x.indawoId == indawo.id).ToArray();
-            indawo.oparatingHours = Helper.SortHours(OpHours);
-            indawo.open = Helper.assignSatus(indawo);
-            indawo.closingSoon = Helper.isClosingSoon(indawo);
-            indawo.openingSoon = Helper.isOpeningSoon(indawo);
-            indawo.info = Helper.getLocationInfo(indawo);
-            indawo.openOrClosedInfo = Helper.getClosedStatus(indawo);
-            Helper.getOpratingHoursStr(indawo);
+            Helper.prepareLocation(indawo,db);
             if (indawo == null)
             {
                 return NotFound();

@@ -4,74 +4,35 @@
     ViewBag.Title = "Events";
 }
     <div class="row">
-        <div class="col-md-1">
 
-        </div>
-        <div class="col-md-10">
-            <div class="container">
-                <div id="myCarousel" class="carousel slide col-md-12" style="width:100%; height:300px; margin:auto" data-ride="carousel">
-                    <!-- Indicators -->
-                    <ol class="carousel-indicators">
-                        <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
-                        <li data-target="#myCarousel" data-slide-to="1"></li>
-                        <li data-target="#myCarousel" data-slide-to="2"></li>
-                    </ol>
+        <h2 style="text-align:center; font-family:'Segoe Print'">Main events</h2>
+        <hr />
+        @foreach (var ev in Model.Where(x => x.indawoId == 9))
+        {
 
-                    <!-- Wrapper for slides -->
-                    <div class="carousel-inner">
-
-                        <div class="item active">
-                            <h3 style="font-family:'Segoe Print'" class="text-center yellow">@Model.Where(x => x.indawoId == 9).ElementAt(0).title</h3>
-                            <img style="width:900px; height:300px;" src=@Model.Where(x => x.indawoId == 9).ElementAt(0).imgPath alt="Chania">
-                            <div class="carousel-caption pull-right">
-                                <a href="@Url.Content(Model.Where(x => x.indawoId == 9).ElementAt(0).url)" class="btn btn-primary"> Details</a>
-                                <a class="btn btn-primary" onclick="getDirections('@Model.Where(x => x.indawoId == 9).ElementAt(0).address')">Directions</a>
-                                <a class="btn btn-primary"> Tickets</a>
-                            </div>
-                        </div>
-
-                        <div class="item">
-                            <h3 style="font-family:'Segoe Print'" class="text-center yellow">@Model.Where(x => x.indawoId == 9).ElementAt(1).title</h3>
-                            <img style="width:900px; height:300px;" src=@Model.Where(x => x.indawoId == 9).ElementAt(1).imgPath alt="Chicago">
-                            <div class="carousel-caption">
-                                <a href="@Url.Content(Model.Where(x => x.indawoId == 9).ElementAt(0).url)" class="btn btn-primary"> Details</a>
-                                <a class="btn btn-primary" onclick="getDirections('@Model.Where(x => x.indawoId == 9).ElementAt(0).address')">Directions</a>
-                                <div class="btn btn-primary"> Tickets</div>
-                            </div>
-                        </div>
-
-                        <div class="item">
-                            <h3 style="font-family:'Segoe Print'" class="text-center yellow">@Model.Where(x => x.indawoId == 9).ElementAt(2).title</h3>
-                            <img style="width:900px; height:300px;" src=@Model.Where(x => x.indawoId == 9).ElementAt(2).imgPath alt="New York">
-                            <div class="carousel-caption">
-                                <a href="@Url.Content(Model.Where(x => x.indawoId == 9).ElementAt(0).url)" class="btn btn-primary"> Details</a>
-                                <a class="btn btn-primary" onclick="getDirections('@Model.Where(x => x.indawoId == 9).ElementAt(0).address')">Directions</a>
-                                <div class="btn btn-primary"> Tickets</div>
-                            </div>
-                        </div>
+            <div class="col-md-4">
+                <div class="card" style="width: 50rem;">
+                    <h3 style="font-family:'Segoe Print'" class="yellow">@ev.title.ToUpper()</h3>
+                    <img style="width:300px; height: 200px;" src=@ev.imgPath class="card-img-top" alt="...">
+                    <div class="card-body">
+                        @Html.ActionLink("Details", "Details", new { id = @ev.id }, new { @class = "btn btn-primary" })
+                        <a class="btn btn-primary" onclick="getDirections('@ev.address')">Directions</a>
+                        <a class="btn btn-primary"> Tickets</a>
                     </div>
-
-                    <!-- Left and right controls -->
-                    <a class="left carousel-control" href="#myCarousel" data-slide="prev">
-                        <span class="glyphicon glyphicon-chevron-left"></span>
-                        <span class="sr-only">Previous</span>
-                    </a>
-                    <a class="right carousel-control" href="#myCarousel" data-slide="next">
-                        <span class="glyphicon glyphicon-chevron-right"></span>
-                        <span class="sr-only">Next</span>
-                    </a>
                 </div>
-
             </div>
-        </div>
-        <div class="col-md-1">
+        }
 
-        </div>
-    </div>
-    
-    <br />
+    </div>       
     <br />
     <div class="row">
+        @if (Model.Where(x => x.indawoId != 9).Count() != 0)
+        {
+            <h2 style="text-align:center;font-family:'Segoe Print'">Location events</h2>
+            <hr />
+        }
+
+
         <div class="col-md-4">
             @foreach (var item in Model.Where(x => x.indawoId != 9))
             {
@@ -79,8 +40,8 @@
                     <h3 style="font-family:'Segoe Print'" class="yellow">@item.title.ToUpper()</h3>
                     <img style="width:300px; height: 200px;" src=@item.imgPath class="card-img-top" alt="...">
                     <div class="card-body">
-                        @Html.ActionLink("Details","Details",new { id = item.id},new { @class = "btn btn-primary"})
-                        <a class="btn btn-primary" onclick="getDirections('@Model.Where(x => x.indawoId == 9).ElementAt(0).address')">Directions</a>
+                        @Html.ActionLink("Details", "Details", new { id = item.id }, new { @class = "btn btn-primary" })
+                        <a class="btn btn-primary" onclick="getDirections('@item.address')">Directions</a>
                         <a class="btn btn-primary"> Tickets</a>
                     </div>
                 </div>

@@ -7,6 +7,8 @@ using ZkhiphavaWeb.Models;
 
 namespace ZkhiphavaWeb.Controllers.MVC
 {
+    [HandleError]
+    [RequireHttps]
     public class AppDataController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();

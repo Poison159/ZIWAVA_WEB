@@ -14,6 +14,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Device.Location;
 using System.Net;
+using System.Security.Principal;
 
 namespace ZkhiphavaWeb.Models
 {
@@ -43,22 +44,46 @@ namespace ZkhiphavaWeb.Models
             }
         }
 
+
+        public static void prepareEvent(string lat, string lon, Event evnt, ApplicationDbContext db) {
+            string url = System.Configuration.ConfigurationManager.AppSettings["prodUrl"];
+            int outPut;
+            try
+            {
+
+                if (int.TryParse(lat[1].ToString(), out outPut) && int.TryParse(lon[0].ToString(), out outPut))
+                {
+                    var locationLat         = Convert.ToDouble(evnt.lat, CultureInfo.InvariantCulture);
+                    var locationLon         = Convert.ToDouble(evnt.lon, CultureInfo.InvariantCulture);
+                    var userLocationLat     = Convert.ToDouble(lat, CultureInfo.InvariantCulture);
+                    var userLocationLong    = Convert.ToDouble(lon, CultureInfo.InvariantCulture);
+                    evnt.distance           = Math.Round(Helper.distanceToo(locationLat, locationLon, userLocationLat, userLocationLong, 'K'));
+                }
+                var eventArtistIds = db.ArtistEvents.ToList().Where(x => x.eventId == evnt.id);
+                evnt.artists = Helper.getArtists(eventArtistIds, db);
+                evnt.images = db.Images.Where(x => x.eventName.ToLower().Trim() == evnt.title.ToLower().Trim()).ToList();
+                Helper.appendDomain(evnt.images, url);
+                evnt.date = Helper.treatDate(evnt.date);
+            }
+            catch { }
+
+        }
+
         internal static List<Indawo> checkParams(string name, string type, string province,IEnumerable<Indawo> indawoes)
         {
             List<Indawo> ret = new List<Indawo>();
+            if (string.IsNullOrEmpty(type) && string.IsNullOrEmpty(name) && string.IsNullOrEmpty(province))
+                return indawoes.ToList();
             if (!string.IsNullOrEmpty(name))
-                ret = indawoes.Where(x => x.name.Trim().ToLower().Contains(name.Trim().ToLower())).ToList();
-            if (!string.IsNullOrEmpty(province))
-            {
-                ret = indawoes.Where(x => x.city.ToString().Equals(province)).ToList();
+                indawoes = indawoes.Where(x => x.name.Trim().ToLower().Contains(name.Trim().ToLower())).ToList();
+            if (!string.IsNullOrEmpty(province)){
+                indawoes = indawoes.Where(x => x.city.ToString().Equals(province)).ToList();
             }
             if (!string.IsNullOrEmpty(type))
             {
-                ret = indawoes.Where(x => x.type.ToString().Equals(type)).ToList();
+                indawoes = indawoes.Where(x => x.type.ToString().Equals(type)).ToList();
             }
-            if (string.IsNullOrEmpty(type) && string.IsNullOrEmpty(name) && string.IsNullOrEmpty(province))
-                return indawoes.ToList();
-            return ret;
+            return indawoes.ToList();
         }
 
         public static Coordinates getLatLon() {
@@ -171,15 +196,27 @@ namespace ZkhiphavaWeb.Models
             List<string> retStr = new List<string>();
             int i = 0;
             var operatingHours = item.oparatingHours;
-            foreach (var opHour in operatingHours)
+            foreach (var oph in operatingHours)
             {
                 i++;
-                str += opHour.day + " | " + opHour.openingHour.TimeOfDay.ToString().Split(':').Take(2).First() + ":" + opHour.openingHour.TimeOfDay.ToString().Split(':').Take(2).ElementAt(1) + " to "
-                    + opHour.closingHour.TimeOfDay.ToString().Split(':').Take(2).First() + ":" + opHour.openingHour.TimeOfDay.ToString().Split(':').Take(2).ElementAt(1) + " " + opHour.occation;
+                str += oph.day + " | " + oph.openingHour.ToShortTimeString() + " to " + oph.closingHour.ToShortTimeString() +" " + oph.occation + " | (Level 1)";
                 item.operatingHoursStr.Add(str);
                 str = "";
             }
         }
+
+        public static void deleteOldImage(List<Image> images) {
+
+            var targetPath = System.Web.Hosting.HostingEnvironment.MapPath("~/Content/imgs/");
+            foreach (var item in images){
+                var photoName = item.imgPath;
+                var path = Path.Combine(targetPath, photoName);
+                if(File.Exists(path))
+                    File.Delete(path);
+            }
+        }
+
+        
 
         internal static void IncrementAppStats(ApplicationDbContext db, string vibe)
         {
@@ -315,6 +352,11 @@ namespace ZkhiphavaWeb.Models
             return d;
         }
 
+        public static void appendDomain(List<Image> images, string url) {
+            foreach (var item in images.ToList())
+                item.imgPath = url + "Content/imgs/" + item.imgPath;
+        }
+
         internal static object LiekdFromString(string likesLocations,string interestedEvents, 
             List<Indawo> indawoes, List<Event> events, ApplicationDbContext db,double lat, double lon)
         {
@@ -333,20 +375,19 @@ namespace ZkhiphavaWeb.Models
                 if (int.TryParse(id, out outPut))
                 {
                     var evnt = db.Events.Find(Convert.ToInt32(id));
-                    if (int.TryParse(lat.ToString()[1].ToString(), out outPut) && int.TryParse(lon.ToString()[0].ToString(), out outPut))
+                    if (evnt != null)
                     {
-                        var locationLat = Convert.ToDouble(evnt.lat, CultureInfo.InvariantCulture);
-                        var locationLon = Convert.ToDouble(evnt.lon, CultureInfo.InvariantCulture);
-                        var userLocationLat = Convert.ToDouble(lat, CultureInfo.InvariantCulture);
-                        var userLocationLong = Convert.ToDouble(lon, CultureInfo.InvariantCulture);
-                        evnt.distance = Math.Round(Helper.distanceToo(locationLat, locationLon, userLocationLat, userLocationLong, 'K'));
+                            if (int.TryParse(lat.ToString()[1].ToString(), out outPut) && int.TryParse(lon.ToString()[0].ToString(), out outPut))
+                            {
+                                var locationLat = Convert.ToDouble(evnt.lat, CultureInfo.InvariantCulture);
+                                var locationLon = Convert.ToDouble(evnt.lon, CultureInfo.InvariantCulture);
+                                var userLocationLat = Convert.ToDouble(lat, CultureInfo.InvariantCulture);
+                                var userLocationLong = Convert.ToDouble(lon, CultureInfo.InvariantCulture);
+                                Helper.prepareEvent(userLocationLat.ToString(), userLocationLong.ToString(), evnt, db);
+                                //evnt.distance = Math.Round(Helper.distanceToo(locationLat, locationLon, userLocationLat, userLocationLong, 'K'));
+                            }
+                        }
                     }
-                    var eventArtistIds = db.ArtistEvents.ToList().Where(x => x.eventId == evnt.id);
-                    evnt.artists = Helper.getArtists(eventArtistIds, db);
-                    evnt.images = db.Images.Where(x => x.eventName.ToLower().Trim() == evnt.title.ToLower().Trim()).ToList();
-                    evnt.date = Helper.treatDate(evnt.date);
-                    interested.Add(evnt);
-                }
                 else {
                     continue;
                 }
@@ -400,22 +441,40 @@ namespace ZkhiphavaWeb.Models
                     dist = dist * 0.8684;
                 }
                 return (dist);
-            }
+            }   
         }
 
-        public static void prepareLocation(Indawo item, ApplicationDbContext db) {
-            var OpHours = db.OperatingHours.Where(x => x.indawoId == item.id).ToArray();
-            item.images = db.Images.Where(x => x.indawoId == item.id).ToList();
-            item.events = db.Events.Where(x => x.indawoId == item.id).ToList();
-            item.specialInstructions = db.SpecialInstructions.Where(x => x.indawoId == item.id).ToList();
-            item.oparatingHours = SortHours(OpHours);
-            Helper.makeAllOpHoursToday(item);
-            item.open = Helper.assignSatus(item);
-            item.closingSoon = Helper.isClosingSoon(item);
-            item.openingSoon = Helper.isOpeningSoon(item);
-            item.info = Helper.getLocationInfo(item);
-            item.openOrClosedInfo = Helper.getClosedStatus(item);
-            Helper.getOpratingHoursStr(item);
+        public static void prepareLocation(Indawo indawo, ApplicationDbContext db) {
+            string url = System.Configuration.ConfigurationManager.AppSettings["prodUrl"];
+            var OpHours = db.OperatingHours.Where(x => x.indawoId == indawo.id).ToArray();
+            indawo.images = db.Images.Where(x => x.indawoId == indawo.id).ToList();
+            indawo.events = db.Events.Where(x => x.indawoId == indawo.id).ToList();
+            indawo.specialInstructions = db.SpecialInstructions.Where(x => x.indawoId == indawo.id).ToList();
+            indawo.oparatingHours = SortHours(OpHours);
+            Helper.makeAllOpHoursToday(indawo);
+            Helper.MakeLeveOne(indawo);
+            Helper.appendDomain(indawo.images, url);
+            indawo.open = Helper.assignSatus(indawo);
+            indawo.closingSoon = Helper.isClosingSoon(indawo);
+            indawo.openingSoon = Helper.isOpeningSoon(indawo);
+            indawo.info = Helper.getLocationInfo(indawo);
+            indawo.openOrClosedInfo = Helper.getClosedStatus(indawo);
+            Helper.getOpratingHoursStr(indawo);
+        }
+
+        private static void MakeLeveOne(Indawo indawo)
+        {
+            var dateNow = DateTime.Now;
+            var midnight = new DateTime(dateNow.Year, dateNow.Month, dateNow.Day, 23, 59, 59);
+
+            foreach (var item in indawo.oparatingHours)
+            {
+                if (item.closingHour > midnight)
+                    item.closingHour = new DateTime(dateNow.Year, dateNow.Month, dateNow.Day, item.closingHour.Hour,
+                            item.closingHour.Minute, item.closingHour.Second).AddDays(1);
+                if (item.closingHour > midnight)
+                    item.closingHour = midnight;
+            }
         }
 
         public static OperatingHours[] SortHours(OperatingHours[] opHors)
@@ -468,6 +527,19 @@ namespace ZkhiphavaWeb.Models
             var endDate = grantDate.AddDays(90);
             return new Token(email, tokenString, grantDate, endDate);
         }
+        public static  void getAllImages(List<Image> images, ApplicationDbContext db) {
+            var randString = RandomString(10);
+            var url = "zkhiphava";
+           
+            var dbIdawoes = db.Indawoes.ToList();
+            foreach (var item in images){
+                if (item.imgPath.Contains(url) && item.eventName != null){
+                    item.imgPath = item.imgPath.Split('/').Last();
+                    db.SaveChanges();
+                }
+            }
+            
+         }
 
         public static string getNextDay(string curDay)
         {
@@ -534,7 +606,7 @@ namespace ZkhiphavaWeb.Models
             var nextDay = DateTime.Now.AddDays(1);
             foreach (var item in indawo.oparatingHours)
             {
-                if (DateTime.Now.DayOfWeek.ToString().ToLower() == item.day.ToLower()) {
+                
 
                     item.closingHour = new DateTime(dateToday.Year, dateToday.Month, dateToday.Day, item.closingHour.Hour,
                             item.closingHour.Minute, item.closingHour.Second);
@@ -547,7 +619,7 @@ namespace ZkhiphavaWeb.Models
                     }
                     item.openingHour = new DateTime(dateToday.Year, dateToday.Month, dateToday.Day, item.openingHour.Hour,
                             item.openingHour.Minute, item.openingHour.Second);
-                }
+                
             }
         }
 
@@ -587,11 +659,46 @@ namespace ZkhiphavaWeb.Models
         }
 
         public static bool openOrClosed(OperatingHours opHours,Indawo indawo) {
+            var ret = false;
+            var dateNow = DateTime.Now;
             if (opHours.openingHour <= DateTime.Now
                 && opHours.closingHour >= DateTime.Now)
-                return true;
+                ret = true;
             else
-                return false;
+                ret = false;
+
+            if (ret == false){
+                //if ret is false check am condition
+                ret = checkAMCondition(ret,opHours,indawo,dateNow);
+            }
+            return ret;
+        }
+
+        public static bool checkAMCondition(bool ret, OperatingHours opHours,Indawo indawo, DateTime dateNow) {
+
+            //case for when user searches at 00:00 and later
+            var now = dateNow.ToString("tt");
+            //also check if the curr time is less than that days opening time
+            if (now == "AM" && dateNow < opHours.openingHour)
+            {
+                var daybefore = getDayBefore(opHours);
+                try
+                {
+                    var opHourForDayBefore = indawo.oparatingHours.First(x => x.day.ToLower().Trim() == daybefore.Trim().ToLower());
+                    // check if they where open day before
+                    if (opHourForDayBefore != null)
+                    {
+                        if (opHourForDayBefore.closingHour.Hour < dateNow.Hour)
+                            ret = true;
+                    }
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+                
+            }
+            return ret;
         }
 
         public static void downloadImage(string imageUrl, string downloadPath)

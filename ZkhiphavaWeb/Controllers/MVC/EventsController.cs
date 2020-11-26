@@ -10,7 +10,8 @@ using ZkhiphavaWeb.Models;
 
 namespace ZkhiphavaWeb.Controllers.mvc
 {
-    
+    [HandleError]
+    [RequireHttps]
     public class EventsController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
@@ -24,13 +25,14 @@ namespace ZkhiphavaWeb.Controllers.mvc
         // GET: Events/Details/5
         public ActionResult Details(int? id)
         {
-            
+            string url = System.Configuration.ConfigurationManager.AppSettings["prodUrl"];
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
             Event @event = db.Events.Find(id);
             @event.images = db.Images.Where(x => x.eventName == @event.title).ToList();
+            Helper.appendDomain(@event.images, url);
             var artistEvents = db.ArtistEvents.Where(x => x.eventId == @event.id);
             List<int> artisIds = new List<int>();
             var artists = new List<Artist>();
@@ -66,6 +68,10 @@ namespace ZkhiphavaWeb.Controllers.mvc
         {
             if (ModelState.IsValid)
             {
+                var path = "default.png";
+                var testPath = "default.png";
+                for (int i = 0; i <= 2; i++)
+                        @event.images.Add(new Image() { indawoId = 9, imgPath = path });
                 db.Events.Add(@event);
                 db.SaveChanges();
                 return RedirectToAction("Create","ArtistEvents");
@@ -101,7 +107,7 @@ namespace ZkhiphavaWeb.Controllers.mvc
                 try
                 {
                     Helper.downloadImage(path, img.imgPath);
-                    img.imgPath = "http://zkhiphava.co.za/Content/imgs/" + randString + ".png";
+                    img.imgPath =  randString + ".png";
                     db.Images.Add(img);
                     db.SaveChanges();
                 }
@@ -177,6 +183,7 @@ namespace ZkhiphavaWeb.Controllers.mvc
             }
             db.Events.Remove(@event);
             foreach (var image in db.Images) { if (image.eventName == @event.title) { db.Images.Remove(image); } }
+            Helper.deleteOldImage(db.Images.Where(x => x.eventName == @event.title).ToList());
             db.SaveChanges();
             return RedirectToAction("Index");
         }
