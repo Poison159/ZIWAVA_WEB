@@ -296,7 +296,8 @@ namespace ZkhiphavaWeb.Controllers
             try
             {
                 var user = db.AppUsers.First(x => x.email == email);
-                return Helper.LiekdFromString(user.LikesLocations, user.interestedEvents, db.Indawoes.ToList(), db.Events.ToList(), db, lat, lon);
+                var res = Helper.LiekdFromString(user.LikesLocations, user.interestedEvents, db.Indawoes.ToList(), db.Events.ToList(), db, lat, lon);
+                return res;
             }
             catch (Exception)
             {
@@ -305,45 +306,45 @@ namespace ZkhiphavaWeb.Controllers
         }
 
 
-        [Route("api/Event")]
-        [HttpGet]
+        //[Route("api/Event")]
+        //[HttpGet]
         
-        public Event Event(int id,string lat, string lon)
-        {
-            var evnt = db.Events.Find(id);
-            try
-            {
-                Helper.prepareEvent(lat, lon, evnt, db);
-                return evnt;
-            }
-            catch {
-                return null;
-            }   
-        }
+        //public Event Event(int id,string lat, string lon)
+        //{
+        //    var evnt = db.Events.Find(id);
+        //    try
+        //    {
+        //        Helper.prepareEvent(lat, lon, evnt, db);
+        //        return evnt;
+        //    }
+        //    catch {
+        //        return null;
+        //    }   
+        //}
 
-        [Route("api/Events")]
-        [HttpGet]
-        public List<Event> Events(string lat, string lon)
-        {
-            int outPut;
-            var rnd = new Random();
-            try { 
-                var events = db.Events.Where(x =>x.indawoId == 9).ToList();
-                foreach (var evnt in events)
-                {
-                    if (int.TryParse(lat[1].ToString(), out outPut) && int.TryParse(lon[0].ToString(), out outPut))
-                    {
-                        Helper.prepareEvent(lat, lon, evnt, db);
-                    }
-                }
-                var randEvents = events.OrderBy(x => rnd.Next()).ToList();
-                Helper.convertDates(randEvents);
-                return randEvents;
-            }
-            catch {
-                return null;
-            }
-        }
+        //[Route("api/Events")]
+        //[HttpGet]
+        //public List<Event> Events(string lat, string lon)
+        //{
+        //    int outPut;
+        //    var rnd = new Random();
+        //    try { 
+        //        var events = db.Events.Where(x =>x.indawoId == 9).ToList();
+        //        foreach (var evnt in events)
+        //        {
+        //            if (int.TryParse(lat[1].ToString(), out outPut) && int.TryParse(lon[0].ToString(), out outPut))
+        //            {
+        //                Helper.prepareEvent(lat, lon, evnt, db);
+        //            }
+        //        }
+        //        var randEvents = events.OrderBy(x => rnd.Next()).ToList();
+        //        Helper.convertDates(randEvents);
+        //        return randEvents;
+        //    }
+        //    catch {
+        //        return null;
+        //    }
+        //}
 
         // GET: api/Indawoes/5
         [ResponseType(typeof(Indawo))]

@@ -83,41 +83,45 @@
             </div>
             <div id="menu1" class="tab-pane fade">
                 <div id="two" class="row">
-                    @foreach (var item in Model.events)
+                    @if (Model.events.Count() != 0)
                     {
-                        <div class="col-md-4 white">
-                            <div class="card" style="width:320px;height:300px;">
-                                <img style="width:300px;height:150px" class="card-img-top" src=@item.images.ElementAt(0).imgPath alt="Card image">
-                                <div class="card-body">
-                                    <h4 id="name" style="font-family:'Segoe Print'" class="card-title yellow">
-                                        @item.title
-                                    </h4>
-                                    <div class="row">
-                                        <div class="col-md-4">
-                                            <p id="@item.id" class="distance yellow"></p>
+                        foreach (var item in Model.events)
+                        {
+                            <div class="col-md-4 white">
+                                <div class="card" style="width:320px;height:300px;">
+                                    <img style="width:300px;height:150px" class="card-img-top" src=@item.images.ElementAt(0).imgPath alt="Card image">
+                                    <div class="card-body">
+                                        <h4 id="name" style="font-family:'Segoe Print'" class="card-title yellow">
+                                            @item.title
+                                        </h4>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <p id="@item.id" class="distance yellow"></p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <p class="yellow">@item.price</p>
+                                            </div>
                                         </div>
-                                        <div class="col-md-6">
-                                            <p class="yellow">@item.price</p>
-                                        </div>
-                                    </div>
 
 
-                                    <div class="card-text">
-                                        <a href="@Url.Action("Details", "Events",new {id = item.id})" class="btn pull-right btn-sm btn-primary">
-                                            Details
-                                            <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
-                                        </a>
-                                        <a class="pull-right btn btn-primary btn-sm" onclick="getDirections('@item.address')">
-                                            Maps <span class="glyphicon glyphicon-map-marker"></span>
-                                        </a>
-                                        <a class="pull-right btn btn-primary btn-sm" href="@Url.Content(item.url)">
-                                            Website <span class="glyphicon glyphicon-picture"></span>
-                                        </a>
+                                        <div class="card-text">
+                                            <a href="@Url.Action("Details", "Events",new {id = item.id})" class="btn pull-right btn-sm btn-primary">
+                                                Details
+                                                <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+                                            </a>
+                                            <a class="pull-right btn btn-primary btn-sm" onclick="getDirections('@item.address')">
+                                                Maps <span class="glyphicon glyphicon-map-marker"></span>
+                                            </a>
+                                            <a class="pull-right btn btn-primary btn-sm" href="@Url.Content(item.url)">
+                                                Website <span class="glyphicon glyphicon-picture"></span>
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        }
                     }
+
                 </div>
             </div>
         </div>

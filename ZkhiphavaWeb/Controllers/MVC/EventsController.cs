@@ -55,6 +55,7 @@ namespace ZkhiphavaWeb.Controllers.mvc
         [Authorize]
         public ActionResult Create()
         {
+            ViewBag.indawoId = new SelectList(db.Indawoes, "id", "name");
             return View();
         }
 
@@ -66,6 +67,7 @@ namespace ZkhiphavaWeb.Controllers.mvc
         [Authorize]
         public ActionResult Create([Bind(Include = "id,indawoId,title,description,date,stratTime,endTime,price,address,lat,lon,url,imgPath")] Event @event)
         {
+            ViewBag.indawoId = new SelectList(db.Indawoes, "id", "name");
             if (ModelState.IsValid)
             {
                 var path = "default.png";

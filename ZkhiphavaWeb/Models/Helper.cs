@@ -63,7 +63,7 @@ namespace ZkhiphavaWeb.Models
                 evnt.artists = Helper.getArtists(eventArtistIds, db);
                 evnt.images = db.Images.Where(x => x.eventName.ToLower().Trim() == evnt.title.ToLower().Trim()).ToList();
                 Helper.appendDomain(evnt.images, url);
-                evnt.date = Helper.treatDate(evnt.date);
+                evnt.date = evnt.date;
             }
             catch { }
 
@@ -362,40 +362,37 @@ namespace ZkhiphavaWeb.Models
         {
             var liked = new List<Indawo>();
             var interested = new List<Event>();
-            if(!string.IsNullOrEmpty(likesLocations))
-            foreach (var indawoId in likesLocations.Split(',')){
-                try{
-                    liked.Add(Helper.addDistance(indawoes.First(x => x.id == Convert.ToInt32(indawoId)),lat,lon));
-                }
-                catch (Exception){}
-            }
-            if(!string.IsNullOrEmpty(interestedEvents))
-            foreach (var id in interestedEvents.Split(',')){
-                int outPut;
-                if (int.TryParse(id, out outPut))
+            if (!string.IsNullOrEmpty(likesLocations)) {
+                foreach (var indawoId in likesLocations.Split(','))
                 {
-                    var evnt = db.Events.Find(Convert.ToInt32(id));
-                    if (evnt != null)
+                    try
                     {
-                            if (int.TryParse(lat.ToString()[1].ToString(), out outPut) && int.TryParse(lon.ToString()[0].ToString(), out outPut))
-                            {
-                                var locationLat = Convert.ToDouble(evnt.lat, CultureInfo.InvariantCulture);
-                                var locationLon = Convert.ToDouble(evnt.lon, CultureInfo.InvariantCulture);
-                                var userLocationLat = Convert.ToDouble(lat, CultureInfo.InvariantCulture);
-                                var userLocationLong = Convert.ToDouble(lon, CultureInfo.InvariantCulture);
-                                Helper.prepareEvent(userLocationLat.ToString(), userLocationLong.ToString(), evnt, db);
-                                //evnt.distance = Math.Round(Helper.distanceToo(locationLat, locationLon, userLocationLat, userLocationLong, 'K'));
-                            }
-                        }
+                        liked.Add(Helper.addDistance(indawoes.First(x => x.id == Convert.ToInt32(indawoId)), lat, lon));
                     }
-                else {
-                    continue;
+                    catch (Exception) { }
                 }
             }
             foreach (var ndawo in liked){
                 Helper.prepareLocation(ndawo, db);
             }
-            
+            if (!string.IsNullOrEmpty(interestedEvents)) {
+                foreach (var id in interestedEvents.Split(','))
+                {
+                    int outPut;
+                    if (int.TryParse(id, out outPut)){
+                        var evnt = db.Events.Find(Convert.ToInt32(id));
+                        if (evnt != null){
+                            if (int.TryParse(lat.ToString()[1].ToString(), out outPut) && int.TryParse(lon.ToString()[0].ToString(), out outPut)){
+                                prepareEvent(Convert.ToString(lat), lon.ToString(), evnt, db);
+                                interested.Add(evnt);
+                            }
+                        }
+                    }
+                    else{
+                        continue;
+                    }
+                }
+            }
             return new { liked = liked.Distinct().Reverse().ToList(), interested = interested.Distinct().Reverse().ToList() };
         }
 
@@ -410,21 +407,16 @@ namespace ZkhiphavaWeb.Models
             return indawo;
         }
 
-        public static double deg2rad(double deg)
-        {
+        public static double deg2rad(double deg){
             return (deg * Math.PI / 180.0);
         }
-        public static double rad2deg(double rad)
-        {
+        public static double rad2deg(double rad){
             return (rad / Math.PI * 180.0);
         }
-
         public static double distanceToo(double lat1, double lon1, double lat2, double lon2, char unit)
         {
-            if ((lat1 == lat2) && (lon1 == lon2))
-            {
+            if ((lat1 == lat2) && (lon1 == lon2)) 
                 return 0;
-            }
             else
             {
                 double theta = lon1 - lon2;

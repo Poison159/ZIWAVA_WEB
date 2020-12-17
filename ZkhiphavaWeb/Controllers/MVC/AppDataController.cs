@@ -18,6 +18,7 @@ namespace ZkhiphavaWeb.Controllers.MVC
             var webUser = db.Users.ToList().First(x => x.Email  == email);
             var appUser = db.AppUsers.ToList().First(x => x.email == webUser.Email);
             var userData = new UserData();
+            string url = System.Configuration.ConfigurationManager.AppSettings["prodUrl"];
             Indawo indawo = null;
             Event @event = null;
             var id = 0;
@@ -47,17 +48,19 @@ namespace ZkhiphavaWeb.Controllers.MVC
                     try
                     {
                         id = Convert.ToInt32(eventId);
+                        @event = db.Events.First(x => x.id == id);
+                        var eventArtistIds = db.ArtistEvents.ToList().Where(x => x.eventId == @event.id);
+                        @event.artists = Helper.getArtists(eventArtistIds, db);
+                        @event.images = db.Images.Where(x => x.eventName.ToLower().Trim() == @event.title.ToLower().Trim()).ToList();
+                        @event.date = Helper.treatDate(@event.date);
+                        Helper.appendDomain(@event.images, url);
                     }
                     catch (Exception)
                     {
                         continue;
                     }
-                    @event = db.Events.First(x => x.id == id);
-                    var eventArtistIds = db.ArtistEvents.ToList().Where(x => x.eventId == @event.id);
-                    @event.artists = Helper.getArtists(eventArtistIds, db);
-                    @event.images = db.Images.Where(x => x.eventName.ToLower().Trim() == @event.title.ToLower().Trim()).ToList();
-                    @event.date = Helper.treatDate(@event.date);
-                    userData.events.Add(@event);
+                    if(@event != null)
+                        userData.events.Add(@event);
                 }
             }
             ViewBag.email = email;

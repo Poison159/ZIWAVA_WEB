@@ -3,27 +3,30 @@
 @{
     ViewBag.Title = "Events";
 }
-    <div class="row">
-
+<div class="row">
+    @if (Model.Where(x => x.indawoId == 9).Count() != 0)
+    {
         <h2 style="text-align:center; font-family:'Segoe Print'">Main events</h2>
         <hr />
-        @foreach (var ev in Model.Where(x => x.indawoId == 9))
-        {
+    }
 
-            <div class="col-md-4">
-                <div class="card" style="width: 50rem;">
-                    <h3 style="font-family:'Segoe Print'" class="yellow">@ev.title.ToUpper()</h3>
-                    <img style="width:300px; height: 200px;" src=@ev.imgPath class="card-img-top" alt="...">
-                    <div class="card-body">
-                        @Html.ActionLink("Details", "Details", new { id = @ev.id }, new { @class = "btn btn-primary" })
-                        <a class="btn btn-primary" onclick="getDirections('@ev.address')">Directions</a>
-                        <a class="btn btn-primary"> Tickets</a>
-                    </div>
+    @foreach (var ev in Model.Where(x => x.indawoId == 9))
+    {
+
+        <div class="col-md-4">
+            <div class="card" style="width: 50rem;">
+                <h3 style="font-family:'Segoe Print'" class="yellow">@ev.title.ToUpper()</h3>
+                <img style="width:300px; height: 200px;" src=@ev.imgPath class="card-img-top" alt="...">
+                <div class="card-body">
+                    @Html.ActionLink("Details", "Details", new { id = @ev.id }, new { @class = "btn btn-primary" })
+                    <a class="btn btn-primary" onclick="getDirections('@ev.address')">Directions</a>
+                    <a class="btn btn-primary"> Tickets</a>
                 </div>
             </div>
-        }
+        </div>
+    }
 
-    </div>       
+</div>       
     <br />
     <div class="row">
         @if (Model.Where(x => x.indawoId != 9).Count() != 0)
