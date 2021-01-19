@@ -38,7 +38,7 @@ namespace ZkhiphavaWeb.Models
         public DbSet<Artist> Artists { get; set; }
         public DbSet<ArtistEvent> ArtistEvents { get; set; }
         public DbSet<Request> Requests { get; set; }
-
+        public DbSet<Midworld> MidRequests { get; set; }
 
 
         public System.Data.Entity.DbSet<ZkhiphavaWeb.Models.OperatingHours> OperatingHours { get; set; }

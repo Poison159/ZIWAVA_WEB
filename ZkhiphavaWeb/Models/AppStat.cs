@@ -19,5 +19,6 @@ namespace ZkhiphavaWeb.Models
         public int clubCounter { get; set; }
         public int pubCounter { get; set; }
         public int outdoorCounter { get; set; }
+        public string times { get; set; }
     }
 }

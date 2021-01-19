@@ -269,6 +269,7 @@
     <Compile Include="Models\IndawoImage.cs" />
     <Compile Include="Models\IndawoStat.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
+    <Compile Include="Models\Midworld.cs" />
     <Compile Include="Models\OperatingHours.cs" />
     <Compile Include="Models\Request.cs" />
     <Compile Include="Models\SpecialInstruction.cs" />

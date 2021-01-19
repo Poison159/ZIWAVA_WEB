@@ -221,7 +221,6 @@ namespace ZkhiphavaWeb.Models
         internal static void IncrementAppStats(ApplicationDbContext db, string vibe)
         {
 
-
             if (db.AppStats.Count() != 0)
             {
                 if (db.AppStats.ToList().Last().dayOfWeek != DateTime.Now.DayOfWeek)
@@ -243,14 +242,15 @@ namespace ZkhiphavaWeb.Models
         }
 
         public static void increamentVibe(AppStat appStat, string vibe) {
-            if (vibe.Trim().ToLower() == "chilled")
+            if (vibe == "chilled")
                 appStat.chilledCounter++;
-            else if (vibe.Trim().ToLower() == "pub/bar")
+            else if (vibe == "pub/bar")
                 appStat.pubCounter++;
-            else if (vibe.Trim().ToLower() == "club")
+            else if (vibe == "club")
                 appStat.clubCounter++;
             else
                 appStat.outdoorCounter++;
+            appStat.times = appStat.times + DateTime.Now.ToShortTimeString() + "-" + vibe + ",";
         }
 
         public static void fixUrl(List<Image> images,ApplicationDbContext db) {

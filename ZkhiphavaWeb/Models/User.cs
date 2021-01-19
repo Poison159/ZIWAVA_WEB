@@ -13,6 +13,7 @@ namespace ZkhiphavaWeb.Models
         public string mobileNumber { get; set; }
         public string password { get; set; }
         public string LikesLocations { get; set; }
+        public string imgPath { get; set; }
         public string interestedEvents { get; set; }
     }
 }

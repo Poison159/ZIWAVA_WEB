@@ -52,7 +52,7 @@ namespace ZkhiphavaWeb.Controllers
             var rnd = new Random();
             List<Indawo> locations = null;
 
-            Helper.IncrementAppStats(db,vibe);
+            Helper.IncrementAppStats(db,vibe.ToLower().Trim());
             if (userLocation.Split(',')[0] == "undefined") {
                 return null;
             }
@@ -109,8 +109,9 @@ namespace ZkhiphavaWeb.Controllers
         [HttpGet]
         public void IncDirStats(int indawoId, string plat)
         {
+            var tempStat = new IndawoStat() { indawoId = indawoId };
             if (db.IndawoStats.Count() == 0) {
-                var tempStat = new IndawoStat() { indawoId = indawoId };
+                
                 if (plat == "maps")
                     tempStat.dirCounter = 1;
                 if (plat == "insta")
@@ -128,7 +129,7 @@ namespace ZkhiphavaWeb.Controllers
                         indawoStats.Last().instaCounter++;
                 }
                 else { // else create new
-                    var tempStat = new IndawoStat() { indawoId = indawoId };
+                    
                     if (plat == "maps")
                         tempStat.dirCounter = 1;
                     if (plat == "insta")
@@ -149,6 +150,38 @@ namespace ZkhiphavaWeb.Controllers
                 return "Thanks we got your message. We will be in touch so watch your emails😉";
             }
             catch (Exception){
+                return "Something went wrong😢";
+            }
+        }
+
+        [Route("api/UploadUser")]
+        [HttpPost]
+        public string getRequest([FromBody] User request)
+        {
+            try
+            {
+                db.AppUsers.Add(request);
+                db.SaveChanges();
+                return "Thanks we got your message. We will be in touch so watch your emails😉";
+            }
+            catch (Exception)
+            {
+                return "Something went wrong😢";
+            }
+        }
+
+        [Route("api/MidRequest")]
+        [HttpPost]
+        public string getMidRequest([FromBody] Midworld request)
+        {
+            try
+            {
+                db.MidRequests.Add(request);
+                db.SaveChanges();
+                return "Thanks we got your message. We will be in touch so watch your emails😉";
+            }
+            catch (Exception)
+            {
                 return "Something went wrong😢";
             }
         }
@@ -345,6 +378,8 @@ namespace ZkhiphavaWeb.Controllers
         //        return null;
         //    }
         //}
+
+
 
         // GET: api/Indawoes/5
         [ResponseType(typeof(Indawo))]
