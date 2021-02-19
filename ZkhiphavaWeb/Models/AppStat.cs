@@ -20,5 +20,6 @@ namespace ZkhiphavaWeb.Models
         public int pubCounter { get; set; }
         public int outdoorCounter { get; set; }
         public string times { get; set; }
+        public string city { get; set; }
     }
 }

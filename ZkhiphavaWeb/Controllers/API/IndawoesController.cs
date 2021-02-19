@@ -52,7 +52,7 @@ namespace ZkhiphavaWeb.Controllers
             var rnd = new Random();
             List<Indawo> locations = null;
 
-            Helper.IncrementAppStats(db,vibe.ToLower().Trim());
+            Helper.IncrementAppStats(db,vibe.ToLower().Trim(),city);
             if (userLocation.Split(',')[0] == "undefined") {
                 return null;
             }
@@ -248,6 +248,77 @@ namespace ZkhiphavaWeb.Controllers
             }
         }
 
+        [Route("api/RegUser")]
+        [HttpPost]
+        public object RegUser()
+        {
+            string imageName = null;
+            var httpRequest = HttpContext.Current.Request;
+            var postedFile = httpRequest.Files["Image"];
+            var name = httpRequest["name"].ToString();
+            var email = httpRequest["email"].ToString();
+            var password = httpRequest["password"].ToString();
+            imageName = Helper.RandomString(5) + ".jpg";
+            var filePath = HttpContext.Current.Server.MapPath("~/Content/userImg/" + imageName);
+            
+            //return Request.CreateResponse(HttpStatusCode.Created, "/Content/userImg/" + imageName);
+            var UserManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(db));
+            UserManager.UserValidator = new UserValidator<ApplicationUser>(UserManager)
+            {
+                AllowOnlyAlphanumericUserNames = false,
+                RequireUniqueEmail = true
+            };
+            var user = new ApplicationUser();
+            var appUser = new User() { name = name, email = email, password = Helper.GetHashString(password), imgPath = imageName };
+            user.Email = email;
+            user.UserName = name;
+            var result = UserManager.Create(user, password);
+            if (result.Succeeded)
+            {
+                db.AppUsers.Add(appUser);
+                db.SaveChanges();
+                if(postedFile != null)
+                    postedFile.SaveAs(filePath);
+                var token = Helper.saveAppUserAndToken(user, db);
+                return new { token = token, user = appUser };
+            }
+            else
+            {
+                return result;
+            }
+        }
+
+        [Route("api/UpdateUser")]
+        [HttpPost]
+        public object UpdateUser()
+        {
+            string imageName = null;
+            var httpRequest = HttpContext.Current.Request;
+            var postedFile = httpRequest.Files["Image"];
+            var name = httpRequest["name"].ToString();
+            var email = httpRequest["email"].ToString();
+            imageName = Helper.RandomString(5) + ".jpg";
+            var filePath = HttpContext.Current.Server.MapPath("~/Content/userImg/" + imageName);
+            var UserManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(db));
+            UserManager.UserValidator = new UserValidator<ApplicationUser>(UserManager)
+            {
+                AllowOnlyAlphanumericUserNames = false,
+                RequireUniqueEmail = true
+            };
+            var user = db.Users.First(x => x.Email.Trim().ToLower() == email.Trim().ToLower());
+            User appUser = db.AppUsers.First(x => x.email.Trim().ToLower() == email.Trim().ToLower());
+            if (name != null) {
+                appUser.name = name;
+                user.UserName = name;
+            }
+            if (postedFile != null) {
+                postedFile.SaveAs(filePath);
+                appUser.imgPath = imageName;
+            }
+            db.SaveChanges();
+            return appUser;
+        }
+
         [Route("api/Favorites")]
         [HttpGet]
         
@@ -339,45 +410,20 @@ namespace ZkhiphavaWeb.Controllers
         }
 
 
-        //[Route("api/Event")]
-        //[HttpGet]
-        
-        //public Event Event(int id,string lat, string lon)
-        //{
-        //    var evnt = db.Events.Find(id);
-        //    try
-        //    {
-        //        Helper.prepareEvent(lat, lon, evnt, db);
-        //        return evnt;
-        //    }
-        //    catch {
-        //        return null;
-        //    }   
-        //}
-
-        //[Route("api/Events")]
-        //[HttpGet]
-        //public List<Event> Events(string lat, string lon)
-        //{
-        //    int outPut;
-        //    var rnd = new Random();
-        //    try { 
-        //        var events = db.Events.Where(x =>x.indawoId == 9).ToList();
-        //        foreach (var evnt in events)
-        //        {
-        //            if (int.TryParse(lat[1].ToString(), out outPut) && int.TryParse(lon[0].ToString(), out outPut))
-        //            {
-        //                Helper.prepareEvent(lat, lon, evnt, db);
-        //            }
-        //        }
-        //        var randEvents = events.OrderBy(x => rnd.Next()).ToList();
-        //        Helper.convertDates(randEvents);
-        //        return randEvents;
-        //    }
-        //    catch {
-        //        return null;
-        //    }
-        //}
+        [HttpPost]
+        [Route("api/UploadImage")]
+        public HttpResponseMessage UploadImage() {
+            string imageName = null;
+            var httpRequest = HttpContext.Current.Request;
+            var postedFile = httpRequest.Files["Image"];
+            var name    = httpRequest.Files["name"];
+            var email = httpRequest.Files["email"];
+            var password = httpRequest.Files["password"];
+            imageName = Helper.RandomString(5) + ".jpg";
+            var filePath = HttpContext.Current.Server.MapPath("~/Content/userImg/" + imageName);
+            postedFile.SaveAs(filePath);
+            return Request.CreateResponse(HttpStatusCode.Created,"/Content/userImg/" + imageName);
+        }
 
 
 

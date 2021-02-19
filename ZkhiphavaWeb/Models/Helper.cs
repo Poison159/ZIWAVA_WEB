@@ -216,16 +216,15 @@ namespace ZkhiphavaWeb.Models
             }
         }
 
-        
-
-        internal static void IncrementAppStats(ApplicationDbContext db, string vibe)
+        internal static void IncrementAppStats(ApplicationDbContext db, string vibe, string city)
         {
 
             if (db.AppStats.Count() != 0)
             {
-                if (db.AppStats.ToList().Last().dayOfWeek != DateTime.Now.DayOfWeek)
+                if (db.AppStats.ToList().Last().date != DateTime.Now)
                 {
                     var appStat = new AppStat();
+                    appStat.city = city;
                     increamentVibe(appStat, vibe);
                     db.AppStats.Add(appStat);
                     db.AppStats.ToList().Last().counter += 1;
@@ -254,7 +253,7 @@ namespace ZkhiphavaWeb.Models
         }
 
         public static void fixUrl(List<Image> images,ApplicationDbContext db) {
-            var prodUrl = "https://zkhiphava.co.za/Content/imgs/";
+            var prodUrl = "https://envibe.co.za/Content/imgs/";
             foreach (var img in images){
                 if (img.imgPath.Contains(".conveyor.cloud")) {
                     string randStr = getRandStr(img.imgPath);
