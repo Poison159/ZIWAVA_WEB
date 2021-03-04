@@ -218,10 +218,9 @@ namespace ZkhiphavaWeb.Models
 
         internal static void IncrementAppStats(ApplicationDbContext db, string vibe, string city)
         {
-
             if (db.AppStats.Count() != 0)
             {
-                if (db.AppStats.ToList().Last().date != DateTime.Now)
+                if (db.AppStats.ToList().Last().date.Date != DateTime.Now.Date)
                 {
                     var appStat = new AppStat();
                     appStat.city = city;
@@ -362,10 +361,8 @@ namespace ZkhiphavaWeb.Models
             var liked = new List<Indawo>();
             var interested = new List<Event>();
             if (!string.IsNullOrEmpty(likesLocations)) {
-                foreach (var indawoId in likesLocations.Split(','))
-                {
-                    try
-                    {
+                foreach (var indawoId in likesLocations.Split(',')){
+                    try{
                         liked.Add(Helper.addDistance(indawoes.First(x => x.id == Convert.ToInt32(indawoId)), lat, lon));
                     }
                     catch (Exception) { }
@@ -375,8 +372,7 @@ namespace ZkhiphavaWeb.Models
                 Helper.prepareLocation(ndawo, db);
             }
             if (!string.IsNullOrEmpty(interestedEvents)) {
-                foreach (var id in interestedEvents.Split(','))
-                {
+                foreach (var id in interestedEvents.Split(',')){
                     int outPut;
                     if (int.TryParse(id, out outPut)){
                         var evnt = db.Events.Find(Convert.ToInt32(id));

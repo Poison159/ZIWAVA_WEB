@@ -45,12 +45,12 @@ namespace ZkhiphavaWeb.Controllers
 
         public List<Indawo> GetIndawoes(string userLocation, string distance, string vibe, string city)
         {
-            var lon = userLocation.Split(',')[0];
-            var lat = userLocation.Split(',')[1];
-            var vibes = new List<string>() { "Chilled", "Club", "Outdoor", "Pub/Bar" };
-            var filters = new List<string>() { "distance", "rating", "damage" };
-            var rnd = new Random();
-            List<Indawo> locations = null;
+            var lon                 = userLocation.Split(',')[0];
+            var lat                 = userLocation.Split(',')[1];
+            var vibes               = new List<string>() { "Chilled", "Club", "Outdoor", "Pub/Bar" };
+            var filters             = new List<string>() { "distance", "rating", "damage" };
+            var rnd                 = new Random();
+            List<Indawo> locations  = null;
 
             Helper.IncrementAppStats(db,vibe.ToLower().Trim(),city);
             if (userLocation.Split(',')[0] == "undefined") {
@@ -71,8 +71,9 @@ namespace ZkhiphavaWeb.Controllers
             
         [Route("api/GetByName")]
         [HttpGet]
-        public object getByName(string name,string lat, string lon) {
-           var locations    = db.Indawoes.ToList().Where(x => x.name.Trim().ToLower().Contains(name.Trim().ToLower())).ToList();
+        public object getByName(string name, string city,string lat, string lon) {
+           var cityLocations    = db.Indawoes.ToList().Where(x => x.city.Trim().ToLower() == city.Trim().ToLower()).ToList();
+           var locations        = cityLocations.Where(x => x.name.Trim().ToLower().Contains(name.Trim().ToLower())).ToList();
             foreach (var loc in locations)
             {
                 loc.distance = Math.Round(Helper.distanceToo(Convert.ToDouble(lat, CultureInfo.InvariantCulture),
@@ -86,7 +87,7 @@ namespace ZkhiphavaWeb.Controllers
             foreach (var evnt in events){
                 Helper.prepareEvent(lat, lon, evnt, db);
             }
-            return new { liked = locations.OrderByDescending(x => x.distance), interested = events.OrderByDescending(x => x.distance) };
+            return new { liked = locations.OrderBy(x => x.distance), interested = events.OrderBy(x => x.distance) };
         }
 
         [Route("api/GetDistance")]
@@ -190,10 +191,11 @@ namespace ZkhiphavaWeb.Controllers
         [HttpGet]
         public object getToken(string email, string password)
         {
-            var userStore = new UserStore<IdentityUser>();
-            var userManager = new UserManager<IdentityUser>(userStore);
-            IdentityUser user = null;
-            User appUser = null;
+            var userStore           = new UserStore<IdentityUser>();
+            var userManager         = new UserManager<IdentityUser>(userStore);
+            IdentityUser user       = null;
+            User appUser            = null;
+
             try{
                 user = db.Users.First(x => x.Email.Trim().ToLower() == email.Trim().ToLower());
                 appUser = db.AppUsers.First(x => x.email.ToLower().Equals(email.ToLower().Trim()));
@@ -231,11 +233,12 @@ namespace ZkhiphavaWeb.Controllers
                 AllowOnlyAlphanumericUserNames = false,
                 RequireUniqueEmail = true
             };
-            var user = new ApplicationUser();
-            var appUser = new User() { name = email, email = email, password = Helper.GetHashString(password) };
-            user.Email = email;
-            user.UserName = email;
-            var result = UserManager.Create(user, password);
+            var user        = new ApplicationUser();
+            var appUser     = new User() { name = email, email = email, password = Helper.GetHashString(password) };
+            user.Email      = email;
+            user.UserName   = email;
+            var result      = UserManager.Create(user, password);
+
             if (result.Succeeded)
             {
                 db.AppUsers.Add(appUser);
@@ -252,14 +255,14 @@ namespace ZkhiphavaWeb.Controllers
         [HttpPost]
         public object RegUser()
         {
-            string imageName = null;
-            var httpRequest = HttpContext.Current.Request;
-            var postedFile = httpRequest.Files["Image"];
-            var name = httpRequest["name"].ToString();
-            var email = httpRequest["email"].ToString();
-            var password = httpRequest["password"].ToString();
-            imageName = Helper.RandomString(5) + ".jpg";
-            var filePath = HttpContext.Current.Server.MapPath("~/Content/userImg/" + imageName);
+            string imageName    = null;
+            var httpRequest     = HttpContext.Current.Request;
+            var postedFile      = httpRequest.Files["Image"];
+            var name            = httpRequest["name"].ToString();
+            var email           = httpRequest["email"].ToString();
+            var password        = httpRequest["password"].ToString();
+            imageName           = Helper.RandomString(5) + ".jpg";
+            var filePath        = HttpContext.Current.Server.MapPath("~/Content/userImg/" + imageName);
             
             //return Request.CreateResponse(HttpStatusCode.Created, "/Content/userImg/" + imageName);
             var UserManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(db));
@@ -268,11 +271,12 @@ namespace ZkhiphavaWeb.Controllers
                 AllowOnlyAlphanumericUserNames = false,
                 RequireUniqueEmail = true
             };
-            var user = new ApplicationUser();
-            var appUser = new User() { name = name, email = email, password = Helper.GetHashString(password), imgPath = imageName };
-            user.Email = email;
-            user.UserName = name;
-            var result = UserManager.Create(user, password);
+            var user                = new ApplicationUser();
+            var appUser             = new User() { name = name, email = email, password = Helper.GetHashString(password), imgPath = imageName };
+            user.Email              = email;
+            user.UserName           = name;
+            var result              = UserManager.Create(user, password);
+
             if (result.Succeeded)
             {
                 db.AppUsers.Add(appUser);
@@ -288,18 +292,15 @@ namespace ZkhiphavaWeb.Controllers
             }
         }
 
-        [Route("api/UpdateUser")]
+        [Route("api/UpdateName")]
         [HttpPost]
         public object UpdateUser()
         {
-            string imageName = null;
-            var httpRequest = HttpContext.Current.Request;
-            var postedFile = httpRequest.Files["Image"];
-            var name = httpRequest["name"].ToString();
-            var email = httpRequest["email"].ToString();
-            imageName = Helper.RandomString(5) + ".jpg";
-            var filePath = HttpContext.Current.Server.MapPath("~/Content/userImg/" + imageName);
-            var UserManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(db));
+            var httpRequest     = HttpContext.Current.Request;
+            var name            = httpRequest["name"].ToString();
+            var email           = httpRequest["email"].ToString();
+            var UserManager     = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(db));
+
             UserManager.UserValidator = new UserValidator<ApplicationUser>(UserManager)
             {
                 AllowOnlyAlphanumericUserNames = false,
@@ -311,7 +312,35 @@ namespace ZkhiphavaWeb.Controllers
                 appUser.name = name;
                 user.UserName = name;
             }
-            if (postedFile != null) {
+            db.SaveChanges();
+            return appUser;
+        }
+
+        [Route("api/UpdateImage")]
+        [HttpPost]
+        public object UpdateImage()
+        {
+            string imageName            = null;
+            var httpRequest             = HttpContext.Current.Request;
+            var postedFile              = httpRequest.Files["Image"];
+            var email                   = httpRequest["email"].ToString();
+            imageName                   = Helper.RandomString(5) + ".jpg";
+            var filePath                = HttpContext.Current.Server.MapPath("~/Content/userImg/" + imageName);
+            var UserManager             = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(db));
+            UserManager.UserValidator   = new UserValidator<ApplicationUser>(UserManager)
+            {
+                AllowOnlyAlphanumericUserNames = false,
+                RequireUniqueEmail = true
+            };
+            var user = db.Users.First(x => x.Email.Trim().ToLower() == email.Trim().ToLower());
+            User appUser = db.AppUsers.First(x => x.email.Trim().ToLower() == email.Trim().ToLower());
+            
+            if (postedFile != null)
+            {
+                var oldImg = HttpContext.Current.Server.MapPath("~/Content/userImg/" + appUser.imgPath);
+                if (File.Exists(oldImg))
+                    File.Delete(oldImg);
+
                 postedFile.SaveAs(filePath);
                 appUser.imgPath = imageName;
             }
@@ -413,14 +442,15 @@ namespace ZkhiphavaWeb.Controllers
         [HttpPost]
         [Route("api/UploadImage")]
         public HttpResponseMessage UploadImage() {
-            string imageName = null;
-            var httpRequest = HttpContext.Current.Request;
-            var postedFile = httpRequest.Files["Image"];
-            var name    = httpRequest.Files["name"];
-            var email = httpRequest.Files["email"];
-            var password = httpRequest.Files["password"];
-            imageName = Helper.RandomString(5) + ".jpg";
-            var filePath = HttpContext.Current.Server.MapPath("~/Content/userImg/" + imageName);
+            string imageName        = null;
+            var httpRequest         = HttpContext.Current.Request;
+            var postedFile          = httpRequest.Files["Image"];
+            var name                = httpRequest.Files["name"];
+            var email               = httpRequest.Files["email"];
+            var password            = httpRequest.Files["password"];
+            imageName               = Helper.RandomString(5) + ".jpg";
+            var filePath            = HttpContext.Current.Server.MapPath("~/Content/userImg/" + imageName);
+
             postedFile.SaveAs(filePath);
             return Request.CreateResponse(HttpStatusCode.Created,"/Content/userImg/" + imageName);
         }
